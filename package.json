@@ -1,0 +1,32 @@
+{
+  "name": "glimpse",
+  "version": "0.1.0",
+  "description": "Semantic search over live Twitch stream thumbnails",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "glimpse": "./bin/glimpse.js"
+  },
+  "scripts": {
+    "start": "node src/cli.ts serve",
+    "glimpse": "node src/cli.ts",
+    "typecheck": "tsc --noEmit -p . && tsc --noEmit -p web"
+  },
+  "engines": {
+    "node": ">=23.6"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.3.2",
+    "amaro": "^1.3.0",
+    "commander": "^15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/petercunha/glimpse.git"
+  }
+}

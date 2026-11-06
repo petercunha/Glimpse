@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glimpse</title>
+  <meta name="description" content="Search live Twitch streams by what's on screen.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="Glimpse home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="9" fill="currentColor"/>
+          <path d="M5 16c3-5.5 6.8-8 11-8s8 2.5 11 8c-3 5.5-6.8 8-11 8s-8-2.5-11-8Z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/>
+          <circle cx="16" cy="16" r="3.6" fill="#fff"/>
+        </svg>
+        <span>Glimpse</span>
+      </a>
+
+      <form class="search" id="search-form" role="search">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" name="q" autocomplete="off" spellcheck="false"
+               placeholder="Describe a stream… e.g. guy wearing a green shirt" aria-label="Search streams">
+        <kbd class="search-kbd" aria-hidden="true">/</kbd>
+      </form>
+
+      <div class="model-status" id="model-status" title="The AI model that matches your words to thumbnails">
+        <span class="status-dot"></span><span class="status-text">Starting…</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="filters" aria-label="Categories">
+      <div class="chips" id="chips"></div>
+      <form class="add-form" id="add-form" hidden>
+        <input id="add-category" type="text" required maxlength="200" autocomplete="off"
+               placeholder="Twitch category or URL, e.g. Fortnite" aria-label="Category to scan">
+        <label class="select">
+          <span class="visually-hidden">Streams to scan</span>
+          <select id="add-limit">
+            <option value="25">Top 25</option>
+            <option value="50" selected>Top 50</option>
+            <option value="100">Top 100</option>
+            <option value="200">Top 200</option>
+          </select>
+        </label>
+        <label class="select">
+          <span class="visually-hidden">Language</span>
+          <select id="add-lang"></select>
+        </label>
+        <button class="btn btn-primary" type="submit">Scan</button>
+        <button class="btn btn-ghost" type="button" id="add-cancel">Cancel</button>
+      </form>
+    </section>
+
+    <section class="results" aria-live="polite">
+      <div class="results-head">
+        <h1 id="results-title"></h1>
+        <p id="results-meta"></p>
+      </div>
+      <div class="examples" id="examples" hidden></div>
+      <p class="notice" id="notice" hidden></p>
+      <div class="loading-bar" id="loading" hidden></div>
+      <div class="grid" id="grid"></div>
+      <div id="empty" hidden></div>
+    </section>
+  </main>
+
+  <form class="popover" id="rescan" role="dialog" aria-labelledby="rescan-title" hidden>
+    <h2 id="rescan-title">Rescan</h2>
+    <label class="field">
+      <span>Streams to scan</span>
+      <input id="rescan-limit" type="number" min="1" max="500" step="1" required>
+    </label>
+    <label class="field">
+      <span>Language</span>
+      <select id="rescan-lang"></select>
+    </label>
+    <p class="popover-hint" id="rescan-hint"></p>
+    <div class="popover-actions">
+      <button class="btn btn-ghost" type="button" id="rescan-cancel">Cancel</button>
+      <button class="btn btn-primary" type="submit">Rescan</button>
+    </div>
+  </form>
+
+  <div class="toast" id="toast" role="status" hidden>
+    <div class="toast-row"><span class="toast-text"></span><button class="toast-close" type="button" aria-label="Dismiss">×</button></div>
+    <div class="toast-progress"><span></span></div>
+  </div>
+</body>
+</html>

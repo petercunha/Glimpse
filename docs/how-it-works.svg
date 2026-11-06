@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 590" width="960" height="590" role="img" aria-labelledby="title desc">
+  <title id="title">How Glimpse finds a stream</title>
+  <desc id="desc">Live thumbnails and your search words go through the same AI model and become points on a map of meaning. Similar pictures land close together, so the thumbnails closest to your words are the best matches.</desc>
+
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#13101d"/>
+      <stop offset="1" stop-color="#1d1733"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.82" cy="0.1" r="0.65">
+      <stop offset="0" stop-color="#7c4dff" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#7c4dff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a68bff"/>
+      <stop offset="1" stop-color="#4cc9f0"/>
+    </linearGradient>
+    <linearGradient id="t-music" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34226a"/><stop offset="1" stop-color="#6c48c9"/></linearGradient>
+    <linearGradient id="t-pets" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#15464a"/><stop offset="1" stop-color="#2a8f86"/></linearGradient>
+    <linearGradient id="t-gaming" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#18306a"/><stop offset="1" stop-color="#3466c4"/></linearGradient>
+    <linearGradient id="t-cooking" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5e2f17"/><stop offset="1" stop-color="#c06a32"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.05"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#8f86a8"/>
+    </marker>
+    <filter id="blur" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="6"/></filter>
+  </defs>
+
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif; fill: #ece9f5; }
+    .emoji { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+    .muted { fill: #a39cb8; }
+    .title { font-size: 25px; font-weight: 700; letter-spacing: -0.01em; }
+    .sub { font-size: 14.5px; }
+    .step { font-size: 14px; font-weight: 650; }
+    .num { font-size: 12px; font-weight: 700; fill: #ffffff; }
+    .small { font-size: 11.5px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11.5px; fill: #a39cb8; }
+    .cluster { font-size: 12px; font-style: italic; fill: #8f86a8; }
+    .cyan { fill: #7fdcf7; }
+
+    /* Data flowing along the arrows. */
+    .flow { stroke-dasharray: 5 7; animation: flow 0.9s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -12; } }
+
+    /* One 9-second loop: search is sent, lands on the map, nearest dots light up, results appear. */
+    .anim { transform-box: fill-box; transform-origin: center; animation-duration: 9s;
+            animation-iteration-count: infinite; animation-fill-mode: both; animation-timing-function: ease-out; }
+    .send  { animation-name: send; }
+    .pop   { animation-name: pop; }
+    .ping  { animation-name: ping; }
+    .link  { stroke-dasharray: 120; animation-name: draw; }
+    .fade  { animation-name: fade; }
+    .rise  { animation-name: rise; }
+    .d1 { animation-delay: 0.25s; }
+    .d2 { animation-delay: 0.5s; }
+    @keyframes send { 0%, 6% { stroke-opacity: 0.55; } 12%, 20% { stroke-opacity: 1; stroke-width: 2.6; } 26%, 100% { stroke-opacity: 0.55; stroke-width: 1.5; } }
+    @keyframes pop  { 0%, 22% { opacity: 0; transform: scale(0.2); } 28% { opacity: 1; transform: scale(1.35); }
+                      32%, 90% { opacity: 1; transform: scale(1); } 96%, 100% { opacity: 0; transform: scale(1); } }
+    @keyframes ping { 0%, 27% { opacity: 0; transform: scale(1); } 29% { opacity: 0.7; transform: scale(1); }
+                      46%, 100% { opacity: 0; transform: scale(3.4); } }
+    @keyframes draw { 0%, 32% { stroke-dashoffset: 120; opacity: 1; } 42%, 90% { stroke-dashoffset: 0; opacity: 1; }
+                      96%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+    @keyframes fade { 0%, 44% { opacity: 0; } 49%, 90% { opacity: 1; } 96%, 100% { opacity: 0; } }
+    @keyframes rise { 0%, 50% { opacity: 0; transform: translateY(8px); } 56%, 90% { opacity: 1; transform: translateY(0); }
+                      96%, 100% { opacity: 0; transform: translateY(0); } }
+
+    /* Without motion, show the finished picture. */
+    @media (prefers-reduced-motion: reduce) {
+      .flow, .anim { animation: none !important; }
+      .ping { opacity: 0; }
+    }
+  </style>
+
+  <!-- Card -->
+  <rect width="960" height="590" rx="24" fill="url(#bg)"/>
+  <rect width="960" height="590" rx="24" fill="url(#glow)"/>
+
+  <text class="title" x="40" y="54">How Glimpse finds a stream</text>
+  <text class="sub muted" x="40" y="80">Pictures and words go through the same AI model and become points on a map of meaning.</text>
+
+  <!-- 1. Live thumbnails -->
+  <circle cx="51" cy="124" r="11" fill="#7c4dff"/>
+  <text class="num" x="51" y="124" text-anchor="middle" dominant-baseline="central">1</text>
+  <text class="step" x="70" y="129">Live thumbnails</text>
+
+  <g>
+    <rect x="40" y="142" width="96" height="54" rx="9" fill="url(#t-music)"/>
+    <text class="emoji" x="88" y="170" font-size="24" text-anchor="middle" dominant-baseline="central">🎸</text>
+    <circle cx="50" cy="152" r="3.5" fill="#ff4d5e"/>
+
+    <rect x="146" y="142" width="96" height="54" rx="9" fill="url(#t-pets)"/>
+    <text class="emoji" x="194" y="170" font-size="24" text-anchor="middle" dominant-baseline="central">🐱</text>
+    <circle cx="156" cy="152" r="3.5" fill="#ff4d5e"/>
+
+    <rect x="40" y="206" width="96" height="54" rx="9" fill="url(#t-gaming)"/>
+    <text class="emoji" x="88" y="234" font-size="24" text-anchor="middle" dominant-baseline="central">🎮</text>
+    <circle cx="50" cy="216" r="3.5" fill="#ff4d5e"/>
+
+    <rect x="146" y="206" width="96" height="54" rx="9" fill="url(#t-cooking)"/>
+    <text class="emoji" x="194" y="234" font-size="24" text-anchor="middle" dominant-baseline="central">🍳</text>
+    <circle cx="156" cy="216" r="3.5" fill="#ff4d5e"/>
+
+    <rect x="40" y="270" width="96" height="54" rx="9" fill="url(#t-music)"/>
+    <text class="emoji" x="88" y="298" font-size="24" text-anchor="middle" dominant-baseline="central">🎤</text>
+    <circle cx="50" cy="280" r="3.5" fill="#ff4d5e"/>
+
+    <rect x="146" y="270" width="96" height="54" rx="9" fill="url(#t-pets)"/>
+    <text class="emoji" x="194" y="298" font-size="24" text-anchor="middle" dominant-baseline="central">🐶</text>
+    <circle cx="156" cy="280" r="3.5" fill="#ff4d5e"/>
+  </g>
+
+  <!-- 2. Your search -->
+  <circle cx="51" cy="368" r="11" fill="#7c4dff"/>
+  <text class="num" x="51" y="368" text-anchor="middle" dominant-baseline="central">2</text>
+  <text class="step" x="70" y="373">Your search</text>
+
+  <rect class="anim send" x="40" y="386" width="216" height="44" rx="22" fill="#231d38" stroke="#4cc9f0" stroke-width="1.5" stroke-opacity="0.55"/>
+  <text class="emoji" x="62" y="408" font-size="15" text-anchor="middle" dominant-baseline="central">🔍</text>
+  <text x="80" y="413" font-size="14">someone playing guitar</text>
+
+  <!-- The AI model -->
+  <text class="small muted" x="366" y="226" text-anchor="middle">same model for both</text>
+  <rect x="298" y="236" width="136" height="112" rx="16" fill="#221c36" stroke="url(#edge)" stroke-width="1.5"/>
+  <text class="emoji" x="366" y="268" font-size="26" text-anchor="middle" dominant-baseline="central">🧠</text>
+  <text x="366" y="306" font-size="15" font-weight="700" text-anchor="middle">AI model</text>
+  <text class="small muted" x="366" y="326" text-anchor="middle">EmbeddingGemma 2</text>
+  <text class="mono" x="366" y="374" text-anchor="middle">[0.12, −0.53, 0.88, …]</text>
+  <text class="small muted" x="366" y="391" text-anchor="middle">= a spot on the map</text>
+
+  <path class="flow" d="M248 233 C274 233 270 270 294 270" fill="none" stroke="#8f86a8" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <path class="flow" d="M262 408 C288 408 270 318 294 318" fill="none" stroke="#8f86a8" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <path class="flow" d="M438 292 L474 292" fill="none" stroke="#8f86a8" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <!-- 3. Map of meaning -->
+  <rect x="480" y="104" width="440" height="370" rx="16" fill="#17132a" stroke="#2d2647"/>
+  <rect x="480" y="104" width="440" height="370" rx="16" fill="url(#grid)"/>
+  <circle cx="500" cy="128" r="11" fill="#7c4dff"/>
+  <text class="num" x="500" y="128" text-anchor="middle" dominant-baseline="central">3</text>
+  <text class="step" x="519" y="133">Map of meaning</text>
+
+  <!-- Neighborhoods -->
+  <ellipse cx="800" cy="208" rx="64" ry="54" fill="#9a78ff" opacity="0.11"/>
+  <ellipse cx="588" cy="232" rx="56" ry="50" fill="#2fb5a5" opacity="0.11"/>
+  <ellipse cx="802" cy="404" rx="58" ry="50" fill="#4f86f7" opacity="0.11"/>
+  <ellipse cx="588" cy="408" rx="56" ry="50" fill="#f08a4b" opacity="0.11"/>
+  <text class="cluster" x="800" y="280" text-anchor="middle">music</text>
+  <text class="cluster" x="588" y="300" text-anchor="middle">pets</text>
+  <text class="cluster" x="802" y="466" text-anchor="middle">gaming</text>
+  <text class="cluster" x="588" y="466" text-anchor="middle">cooking</text>
+
+  <!-- Lines from the search to its nearest thumbnails (drawn under the dots) -->
+  <line class="anim link" x1="725" y1="205" x2="772" y2="182" stroke="#4cc9f0" stroke-width="1.8"/>
+  <line class="anim link d1" x1="725" y1="205" x2="792" y2="238" stroke="#4cc9f0" stroke-width="1.8"/>
+  <line class="anim link d2" x1="725" y1="205" x2="826" y2="200" stroke="#4cc9f0" stroke-width="1.8"/>
+
+  <!-- Thumbnails as points -->
+  <g font-size="16" text-anchor="middle" dominant-baseline="central">
+    <circle cx="772" cy="182" r="16" fill="#2b2050" stroke="#8b6cf0" stroke-opacity="0.6"/><text class="emoji" x="772" y="183">🎸</text>
+    <circle cx="826" cy="200" r="16" fill="#2b2050" stroke="#8b6cf0" stroke-opacity="0.6"/><text class="emoji" x="826" y="201">🎤</text>
+    <circle cx="792" cy="238" r="16" fill="#2b2050" stroke="#8b6cf0" stroke-opacity="0.6"/><text class="emoji" x="792" y="239">🎹</text>
+
+    <circle cx="566" cy="210" r="16" fill="#163d3d" stroke="#2fb5a5" stroke-opacity="0.6"/><text class="emoji" x="566" y="211">🐱</text>
+    <circle cx="612" cy="232" r="16" fill="#163d3d" stroke="#2fb5a5" stroke-opacity="0.6"/><text class="emoji" x="612" y="233">🐶</text>
+    <circle cx="574" cy="258" r="16" fill="#163d3d" stroke="#2fb5a5" stroke-opacity="0.6"/><text class="emoji" x="574" y="259">🐹</text>
+
+    <circle cx="780" cy="384" r="16" fill="#1a2c55" stroke="#4f86f7" stroke-opacity="0.6"/><text class="emoji" x="780" y="385">🎮</text>
+    <circle cx="828" cy="402" r="16" fill="#1a2c55" stroke="#4f86f7" stroke-opacity="0.6"/><text class="emoji" x="828" y="403">🕹️</text>
+    <circle cx="790" cy="430" r="16" fill="#1a2c55" stroke="#4f86f7" stroke-opacity="0.6"/><text class="emoji" x="790" y="431">👾</text>
+
+    <circle cx="566" cy="388" r="16" fill="#47281a" stroke="#f08a4b" stroke-opacity="0.6"/><text class="emoji" x="566" y="389">🍳</text>
+    <circle cx="612" cy="410" r="16" fill="#47281a" stroke="#f08a4b" stroke-opacity="0.6"/><text class="emoji" x="612" y="411">🥘</text>
+    <circle cx="576" cy="436" r="16" fill="#47281a" stroke="#f08a4b" stroke-opacity="0.6"/><text class="emoji" x="576" y="437">🍰</text>
+
+    <circle cx="708" cy="318" r="16" fill="#262038" stroke="#8f86a8" stroke-opacity="0.5"/><text class="emoji" x="708" y="319">🎧</text>
+    <circle cx="660" cy="334" r="16" fill="#262038" stroke="#8f86a8" stroke-opacity="0.5"/><text class="emoji" x="660" y="335">💬</text>
+  </g>
+
+  <!-- Highlight the three closest thumbnails, numbered by rank -->
+  <g class="anim fade">
+    <circle cx="772" cy="182" r="20" fill="none" stroke="#4cc9f0" stroke-width="2"/>
+    <circle cx="792" cy="238" r="20" fill="none" stroke="#4cc9f0" stroke-width="2"/>
+    <circle cx="826" cy="200" r="20" fill="none" stroke="#4cc9f0" stroke-width="2"/>
+    <g font-size="10.5" font-weight="700" text-anchor="middle" dominant-baseline="central">
+      <circle cx="786" cy="166" r="8" fill="#4cc9f0"/><text x="786" y="166" fill="#0e1a24" style="fill:#0e1a24">1</text>
+      <circle cx="806" cy="222" r="8" fill="#4cc9f0"/><text x="806" y="222" style="fill:#0e1a24">2</text>
+      <circle cx="840" cy="184" r="8" fill="#4cc9f0"/><text x="840" y="184" style="fill:#0e1a24">3</text>
+    </g>
+  </g>
+
+  <!-- Your search, as a point on the same map -->
+  <circle class="anim ping" cx="725" cy="205" r="13" fill="none" stroke="#4cc9f0" stroke-width="2"/>
+  <g class="anim pop">
+    <circle cx="725" cy="205" r="14" fill="#4cc9f0" opacity="0.35" filter="url(#blur)"/>
+    <path d="M725 192 L728.8 200.6 L738 201.2 L731 207.2 L733.2 216.2 L725 211.4 L716.8 216.2 L719 207.2 L712 201.2 L721.2 200.6 Z" fill="#4cc9f0" stroke="#ffffff" stroke-width="1"/>
+    <text class="small cyan" x="707" y="209" text-anchor="end">your search</text>
+  </g>
+
+  <!-- 4. Best matches -->
+  <circle cx="500" cy="500" r="11" fill="#7c4dff"/>
+  <text class="num" x="500" y="500" text-anchor="middle" dominant-baseline="central">4</text>
+  <text class="step" x="519" y="505">Best matches, closest first</text>
+
+  <g class="anim rise">
+    <rect x="480" y="518" width="140" height="38" rx="10" fill="#221c36" stroke="#2f2848"/>
+    <circle cx="498" cy="537" r="10" fill="#4cc9f0"/>
+    <text x="498" y="537" font-size="11" font-weight="700" text-anchor="middle" dominant-baseline="central" style="fill:#0e1a24">1</text>
+    <text class="emoji" x="520" y="537" font-size="16" text-anchor="middle" dominant-baseline="central">🎸</text>
+    <text x="533" y="542" font-size="13">guitar</text>
+    <text class="mono" x="611" y="541.5" text-anchor="end" style="font-size:10.5px">0.71</text>
+  </g>
+  <g class="anim rise d1">
+    <rect x="630" y="518" width="140" height="38" rx="10" fill="#221c36" stroke="#2f2848"/>
+    <circle cx="648" cy="537" r="10" fill="#4cc9f0"/>
+    <text x="648" y="537" font-size="11" font-weight="700" text-anchor="middle" dominant-baseline="central" style="fill:#0e1a24">2</text>
+    <text class="emoji" x="670" y="537" font-size="16" text-anchor="middle" dominant-baseline="central">🎹</text>
+    <text x="683" y="542" font-size="13">piano</text>
+    <text class="mono" x="761" y="541.5" text-anchor="end" style="font-size:10.5px">0.64</text>
+  </g>
+  <g class="anim rise d2">
+    <rect x="780" y="518" width="140" height="38" rx="10" fill="#221c36" stroke="#2f2848"/>
+    <circle cx="798" cy="537" r="10" fill="#4cc9f0"/>
+    <text x="798" y="537" font-size="11" font-weight="700" text-anchor="middle" dominant-baseline="central" style="fill:#0e1a24">3</text>
+    <text class="emoji" x="820" y="537" font-size="16" text-anchor="middle" dominant-baseline="central">🎤</text>
+    <text x="833" y="542" font-size="13">singing</text>
+    <text class="mono" x="911" y="541.5" text-anchor="end" style="font-size:10.5px">0.61</text>
+  </g>
+
+  <!-- Plain-language takeaway -->
+  <text x="40" y="508" font-size="14.5" font-weight="650">Similar pictures land close together.</text>
+  <text class="muted" x="40" y="531" font-size="14">Your words land near the pictures they describe,</text>
+  <text class="muted" x="40" y="552" font-size="14">so the closest dots are your best matches.</text>
+</svg>
